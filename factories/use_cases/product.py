@@ -29,7 +29,7 @@ def edit_product_use_case() -> EditProduct:
     return EditProduct(get_product_repository())
 
 
-# def filter_product_use_case() -> FilterProductByStatus:
-#     return FilterProductByStatus(get_product_repository())
+def filter_product_use_case() -> FilterProductByStatus:
+    return FilterProductByStatus(get_product_repository())
 
 

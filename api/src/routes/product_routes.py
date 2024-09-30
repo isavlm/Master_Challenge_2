@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.src.use_cases import (
     ListProducts,
@@ -36,6 +36,7 @@ from factories.use_cases import (
     edit_product_use_case,
     filter_product_use_case,
 )
+
 
 product_router = APIRouter(prefix="/products")
 
