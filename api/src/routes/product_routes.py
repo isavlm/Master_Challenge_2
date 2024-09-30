@@ -9,6 +9,15 @@ from app.src.use_cases import (
     CreateProduct,
     CreateProductResponse,
     CreateProductRequest,
+    DeleteProductResponse,
+    DeleteProductRequest,
+    DeleteProduct,
+    EditProduct,
+    EditProductResponse,
+    EditProductRequest,
+    FilterProductByStatus,
+    FilterProductsByStatusResponse,
+    FilterProductsByStatusRequest
 )
 from ..dtos import (
     ProductBase,
@@ -16,11 +25,16 @@ from ..dtos import (
     CreateProductRequestDto,
     CreateProductResponseDto,
     FindProductByIdResponseDto,
+    EditProductResponseDto,
+    EditProductRequestDto,
 )
 from factories.use_cases import (
     list_product_use_case,
     find_product_by_id_use_case,
     create_product_use_case,
+    delete_product_use_case,
+    edit_product_use_case,
+    filter_product_use_case,
 )
 
 product_router = APIRouter(prefix="/products")
@@ -75,3 +89,57 @@ async def create_product(
         **response._asdict()
     )
     return response_dto
+
+
+# Isadora's code starts here.
+
+#ROUTE TO DELETE
+@product_router.delete("/{product_id}", response_model=DeleteProductResponse)
+async def delete_product(
+    product_id: str, use_case: DeleteProduct = Depends(delete_product_use_case)
+) -> DeleteProductResponse:
+    response = use_case(DeleteProductRequest(product_id=product_id))
+    if response:
+        return response
+    else:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+
+#Route to EDIT
+@product_router.put("/{product_id}", response_model=EditProductResponseDto)
+async def edit_product(
+    product_id: str, 
+    request: EditProductRequestDto,
+    use_case: EditProduct = Depends(edit_product_use_case),    
+) -> EditProductResponseDto:
+    # Convert the DTO to the request model expected by the use case
+    edit_request = EditProductRequest(
+        product_id=request.product_id,
+        user_id=request.user_id,
+        name=request.name,
+        description=request.description,
+        price=request.price,
+        location=request.location,
+        status=request.status,
+        is_available=request.is_available,
+    )
+    
+    # Call the use case
+    response = use_case(product_id, edit_request)
+    
+    if response:
+        # Convert the response to EditProductResponseDto
+        return EditProductResponseDto(
+            product_id=response.product_id,
+            user_id=response.user_id,
+            name=response.name,
+            description=response.description,
+            price=response.price,
+            location=response.location,
+            status=response.status,
+            is_available=response.is_available
+        )
+    else:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+
