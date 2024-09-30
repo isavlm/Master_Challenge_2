@@ -7,4 +7,13 @@ from .product import (
     CreateProduct,
     CreateProductResponse,
     CreateProductRequest,
+    DeleteProductRequest,
+    DeleteProductResponse,
+    DeleteProduct,
+    EditProduct,
+    EditProductResponse,
+    EditProductRequest,
+    FilterProductsByStatusResponse,
+    FilterProductByStatus,
+    FilterProductsByStatusRequest,
 )
