@@ -143,4 +143,5 @@ async def edit_product(
         raise HTTPException(status_code=404, detail="Product not found")
 
 
-# Adding a logger to check my code. 
+#Route to filter by status
+

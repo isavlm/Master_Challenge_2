@@ -132,26 +132,30 @@ class SQLProductRepository(ProductRepository):
             raise ProductRepositoryException(method="delete")
         
 
-    # def get_by_status(self, status: str) -> Optional[Product]:
-    #     try:
-    #         with self.session as session:
-    #             product = (
-    #                 session.query(ProductSchema)
-    #                 .filter(ProductSchema.status == status)
-    #                 .first()
-    #             )
-    #             if product is None:
-    #                 return None
-    #             return Product(
-    #                 product_id=str(product.product_id),
-    #                 user_id=str(product.user_id),
-    #                 name=str(product.name),
-    #                 description=str(product.description),
-    #                 price=Decimal(product.price),
-    #                 location=str(product.location),
-    #                 status=str(product.status),
-    #                 is_available=bool(product.is_available),
-    #             )
-    #     except Exception:
-    #         self.session.rollback()
-    #         raise ProductRepositoryException(method="find")
+    def get_by_status(self, status: str) -> Optional[Product]:
+        try:
+            with self.session as session:
+                product = (
+                    session.query(ProductSchema)
+                    .filter(ProductSchema.status == status)
+                    .all()      #changed first to all so that it returns all products with the status
+                )
+                if not product:
+                    print(f"No products found with status: {status}")
+                    return []
+                return [
+                    Product(
+                        product_id=str(product.product_id),
+                        user_id=str(product.user_id),
+                        name=str(product.name),
+                        description=str(product.description),
+                        price=Decimal(product.price),
+                        location=str(product.location),
+                        status=str(product.status),
+                        is_available=bool(product.is_available),
+                    )
+                    for product in product
+                ]
+        except Exception:
+            self.session.rollback()
+            raise ProductRepositoryException(method="find")
