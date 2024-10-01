@@ -37,7 +37,6 @@ from factories.use_cases import (
     filter_product_use_case,
 )
 
-
 product_router = APIRouter(prefix="/products")
 
 
@@ -144,3 +143,4 @@ async def edit_product(
         raise HTTPException(status_code=404, detail="Product not found")
 
 
+# Adding a logger to check my code. 
