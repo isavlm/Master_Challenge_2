@@ -1,16 +1,10 @@
+from typing import List
 from decimal import Decimal
-
+from pydantic import BaseModel
 from typing import NamedTuple
 
-from ....core import ProductStatuses
+from ....core.models._product import Product
 
 
-class FilterProductsByStatusResponse(NamedTuple):
-    product_id: str
-    user_id: str
-    name: str
-    description: str | None
-    price: Decimal
-    location: str
-    status: ProductStatuses
-    is_available: bool
+class FilterProductsByStatusResponse(BaseModel):
+    products: List[Product]

@@ -3,6 +3,8 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 from app.src import Product, ProductRepository, ProductRepositoryException
 from .tables import ProductSchema
+from sqlalchemy.inspection import inspect
+from pprint import pprint
 
 
 class SQLProductRepository(ProductRepository):
@@ -79,22 +81,37 @@ class SQLProductRepository(ProductRepository):
 
 #Isadora's Code starts here
 
+#To make my life easier to find errors or not when using terminal, I will use pretty print. 
+#To do that I need to make it into a dictionary. 
+
+    def product_to_dict(self,product):
+        return {
+            "product_id": product.product_id,
+            "user_id": product.user_id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "location": product.location,
+            "status": product.status,
+            "is_available": product.is_available
+        }
+
 
     def edit(self, product: Product) -> Product:
-        
+        print("Executing edit method")
         try:
             with self.session as session:
-                # Get the existing product from the database
-                print(product, "This is the product")
+                # Get the original product from the database
                 existing_product = session.query(ProductSchema).filter(
                     ProductSchema.product_id == product.product_id
                 ).first()
 
                 if existing_product is None:
                     raise ProductRepositoryException(method="edit", message="Product not found")
-                
-                # Print debugging information
-                print(f"Existing product before update: {existing_product}")
+
+                # Pretty print the existing product details before update
+                print("Existing product before update:")
+                pprint(self.product_to_dict(existing_product))  # Use the custom dictionary conversion
 
                 # Update the product information
                 existing_product.user_id = product.user_id
@@ -105,14 +122,17 @@ class SQLProductRepository(ProductRepository):
                 existing_product.status = product.status
                 existing_product.is_available = product.is_available
 
-                # Print debugging information after update
-                print(f"Product after update: {existing_product}")
+                # Pretty print the product details after the update
+                print("Product after update:")
+                pprint(self.product_to_dict(existing_product))  # Print vertically
 
                 # Commit the changes to the database
                 session.commit()
 
-            print("Product updated successfully")
-            return product
+                print("Product updated successfully:")
+                pprint(self.product_to_dict(product))  # Pretty print updated product as a dictionary
+                return product
+
         except Exception as e:
             # Print the exception to debug
             print(f"Exception occurred: {e}")
@@ -132,17 +152,17 @@ class SQLProductRepository(ProductRepository):
             raise ProductRepositoryException(method="delete")
         
 
-    def get_by_status(self, status: str) -> Optional[Product]:
+    def filter(self, status: str) -> List[Product]:
         try:
             with self.session as session:
-                product = (
-                    session.query(ProductSchema)
-                    .filter(ProductSchema.status == status)
-                    .all()      #changed first to all so that it returns all products with the status
-                )
-                if not product:
+                # Query to filter products by status and return a list of results
+                products = session.query(ProductSchema).filter(ProductSchema.status == status).all()
+
+                if not products:
                     print(f"No products found with status: {status}")
                     return []
+
+                # Return the list of products converted to Product model
                 return [
                     Product(
                         product_id=str(product.product_id),
@@ -154,8 +174,8 @@ class SQLProductRepository(ProductRepository):
                         status=str(product.status),
                         is_available=bool(product.is_available),
                     )
-                    for product in product
+                    for product in products
                 ]
         except Exception:
             self.session.rollback()
-            raise ProductRepositoryException(method="find")
+            raise ProductRepositoryException(method="get_by_status")

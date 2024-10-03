@@ -27,6 +27,9 @@ from ..dtos import (
     FindProductByIdResponseDto,
     EditProductResponseDto,
     EditProductRequestDto,
+    FilterProductByStatusResponseDto,
+    FilterProductsByStatusRequestDto
+
 )
 from factories.use_cases import (
     list_product_use_case,
@@ -54,6 +57,36 @@ async def get_products(
     )
     return response_dto
 
+#Route to filter by status
+
+@product_router.get("/filter-by-status", response_model=FilterProductByStatusResponseDto)
+async def filter_product_by_status(
+    status: str, 
+    use_case: FilterProductByStatus = Depends(filter_product_use_case)  # Use the use case to filter products by status
+) -> FilterProductByStatusResponseDto:
+    # Create the request with the status
+    print("execute")
+    response = use_case(FilterProductsByStatusRequest(status=status))
+    
+    if response.products:
+        # Convert the response to FilterProductByStatusResponseDto
+        return FilterProductByStatusResponseDto(
+            products=[
+                ProductBase(
+                    product_id=product.product_id,
+                    user_id=product.user_id,
+                    name=product.name,
+                    description=product.description,
+                    price=product.price,
+                    location=product.location,
+                    status=product.status,
+                    is_available=product.is_available
+                )
+                for product in response.products
+            ]
+        )
+    else:
+        raise HTTPException(status_code=404, detail="No products found with this status")
 
 @product_router.get("/{product_id}", response_model=FindProductByIdResponseDto)
 async def get_product_by_id(
@@ -113,6 +146,7 @@ async def edit_product(
     use_case: EditProduct = Depends(edit_product_use_case),    
 ) -> EditProductResponseDto:
     # Convert the DTO to the request model expected by the use case
+    print("testing route")
     edit_request = EditProductRequest(
         product_id=request.product_id,
         user_id=request.user_id,
@@ -141,7 +175,3 @@ async def edit_product(
         )
     else:
         raise HTTPException(status_code=404, detail="Product not found")
-
-
-#Route to filter by status
-

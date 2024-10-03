@@ -20,6 +20,7 @@ class EditProduct:
             raise ProductNotFoundException(product_id=request_entity_id)
 
     def __call__(self, product_id: str, request: EditProductRequest) -> EditProductResponse:
+        print("Use case test")
         try:
             existing_product = self.product_repository.get_by_id(product_id)
             print(existing_product)
