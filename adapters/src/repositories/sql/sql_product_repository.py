@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.src import Product, ProductRepository, ProductRepositoryException
 from .tables import ProductSchema
 from sqlalchemy.inspection import inspect
-from pprint import pprint
+
 
 
 class SQLProductRepository(ProductRepository):
@@ -81,63 +81,39 @@ class SQLProductRepository(ProductRepository):
 
 #Isadora's Code starts here
 
-#To make my life easier to find errors or not when using terminal, I will use pretty print. 
-#To do that I need to make it into a dictionary. 
-
-    def product_to_dict(self,product):
-        return {
-            "product_id": product.product_id,
-            "user_id": product.user_id,
-            "name": product.name,
-            "description": product.description,
-            "price": product.price,
-            "location": product.location,
-            "status": product.status,
-            "is_available": product.is_available
-        }
-
 
     def edit(self, product: Product) -> Product:
-        print("Executing edit method")
         try:
             with self.session as session:
-                # Get the original product from the database
-                existing_product = session.query(ProductSchema).filter(
-                    ProductSchema.product_id == product.product_id
-                ).first()
-
+                existing_product = (session.query(ProductSchema).filter(
+                    ProductSchema.product_id == product.product_id).first())
+                
                 if existing_product is None:
-                    raise ProductRepositoryException(method="edit", message="Product not found")
-
-                # Pretty print the existing product details before update
-                print("Existing product before update:")
-                pprint(self.product_to_dict(existing_product))  # Use the custom dictionary conversion
-
-                # Update the product information
-                existing_product.user_id = product.user_id
-                existing_product.name = product.name
-                existing_product.description = product.description
-                existing_product.price = product.price
-                existing_product.location = product.location
-                existing_product.status = product.status
-                existing_product.is_available = product.is_available
-
-                # Pretty print the product details after the update
-                print("Product after update:")
-                pprint(self.product_to_dict(existing_product))  # Print vertically
-
-                # Commit the changes to the database
+                    raise ProductRepositoryException(
+                        method="edit", message="Product not found")
+                
+                session.query(ProductSchema).filter(
+                    ProductSchema.product_id == product.product_id).update({
+                        "user_id": product.user_id,
+                        "name": product.name,
+                        "description": product.description,
+                        "price": product.price,
+                        "location": product.location,
+                        "status": product.status,
+                        "is_available": product.is_available
+                    }) 
+                
                 session.commit()
 
-                print("Product updated successfully:")
-                pprint(self.product_to_dict(product))  # Pretty print updated product as a dictionary
-                return product
-
+            #Printing a success message before returning the product
+            print(f"Product updated successfully: {product}")   
+            return product
         except Exception as e:
-            # Print the exception to debug
-            print(f"Exception occurred: {e}")
             self.session.rollback()
-            raise ProductRepositoryException(method="edit") from e
+            # print the original exception message
+            print(f"Error occurred: {str(e)}")
+            raise ProductRepositoryException(method="edit", message=str(e))
+
 
 
     def delete(self, product_id: str) -> Product:

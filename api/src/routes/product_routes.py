@@ -59,13 +59,12 @@ async def get_products(
 
 #Route to filter by status
 
-@product_router.get("/filter-by-status", response_model=FilterProductByStatusResponseDto)
+@product_router.get("/filter-by{filter_by_status}", response_model=FilterProductByStatusResponseDto)
 async def filter_product_by_status(
     status: str, 
     use_case: FilterProductByStatus = Depends(filter_product_use_case)  # Use the use case to filter products by status
 ) -> FilterProductByStatusResponseDto:
     # Create the request with the status
-    print("execute")
     response = use_case(FilterProductsByStatusRequest(status=status))
     
     if response.products:
@@ -139,14 +138,18 @@ async def delete_product(
 
 
 #Route to EDIT
+
 @product_router.put("/{product_id}", response_model=EditProductResponseDto)
 async def edit_product(
     product_id: str, 
     request: EditProductRequestDto,
     use_case: EditProduct = Depends(edit_product_use_case),    
-) -> EditProductResponseDto:
+) -> EditProductResponseDto | str:
+    # Validate product status
+    if request.status not in ["New", "Used", "For parts"]:
+        raise HTTPException(status_code=400, detail="Not a valid status value (New, Used, For parts)")
+    
     # Convert the DTO to the request model expected by the use case
-    print("testing route")
     edit_request = EditProductRequest(
         product_id=request.product_id,
         user_id=request.user_id,

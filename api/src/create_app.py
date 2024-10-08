@@ -10,6 +10,7 @@ from api.src.routes import health_check_router, product_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
+
     connection: Connection = SQLConnection()
     SessionManager.initialize_session(connection)
     yield
