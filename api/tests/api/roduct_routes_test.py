@@ -33,14 +33,14 @@ def test_get_products_endpoint_success(app, client, mock_session_manager):
 
     expected_response = {
         "products": [{"product_id": products[0].product_id,
-                      "user_id": products[0].user_id,
-                      "name": products[0].name,
-                      "description": products[0].description,
-                      "price": str(products[0].price),
-                      "location": products[0].location,
-                      "status": products[0].status.value,
-                      "is_available": products[0].is_available,
-                      }]}
+                    "user_id": products[0].user_id,
+                    "name": products[0].name,
+                    "description": products[0].description,
+                    "price": str(products[0].price),
+                    "location": products[0].location,
+                    "status": products[0].status.value,
+                    "is_available": products[0].is_available,
+                    }]}
     assert response.json() == expected_response
 
 #Test 2
@@ -68,14 +68,14 @@ def test_filter_products_endpoint_success(app, client, mock_session_manager):
     assert response.status_code == 200
     expected_response = {
         "products": [{"product_id": products[0].product_id,
-                      "user_id": products[0].user_id,
-                      "name": products[0].name,
-                      "description": products[0].description,
-                      "price": str(products[0].price),
-                      "location": products[0].location,
-                      "status": products[0].status.value,
-                      "is_available": products[0].is_available,
-                      }]}
+                    "user_id": products[0].user_id,
+                    "name": products[0].name,
+                    "description": products[0].description,
+                    "price": str(products[0].price),
+                    "location": products[0].location,
+                    "status": products[0].status.value,
+                    "is_available": products[0].is_available,
+                    }]}
     assert response.json() == expected_response
     mock_use_case.assert_called_once_with(filter_by)
 
