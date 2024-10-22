@@ -1,14 +1,15 @@
-#following example from @Santiago220991 
+# following example from @Santiago220991 
 from decimal import Decimal
 from faker import Faker
 from unittest.mock import MagicMock
 
-from factories.use_cases.product import delete_product_use_case, list_product_use_case, filter_product_use_case, update_product_use_case
+from factories.use_cases.product import delete_product_use_case, list_product_use_case, filter_product_use_case, edit_product_use_case
 from app.src.core.models._product import Product, ProductStatuses
 
 fake = Faker()
 
 #Test Route 1 
+
 def test_get_products_endpoint_success(app, client, mock_session_manager):
     mock_response = MagicMock()
     products = [Product(
@@ -109,7 +110,7 @@ def test_filter_products_endpoint_empty(app, client, mock_session_manager):
     mock_use_case.assert_called_once_with(filter_by)
 
 #Test4
-def test_update_products_endpoint(app, client, mock_session_manager):
+def test_edit_product_endpoint(app, client, mock_session_manager):
     mock_response = MagicMock()
     product = Product(
         product_id=fake.uuid4(),
@@ -124,7 +125,7 @@ def test_update_products_endpoint(app, client, mock_session_manager):
     mock_response = product
     mock_use_case = MagicMock(return_value=mock_response)
 
-    app.dependency_overrides[update_product_use_case] = lambda: mock_use_case
+    app.dependency_overrides[edit_product_use_case] = lambda: mock_use_case
 
     request_body = {
         "product_id": str(product.product_id),

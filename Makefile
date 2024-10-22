@@ -63,4 +63,7 @@ win_start:  ## Starts the debug of the program in windows environment
 
 .PHONY: lint
 lint: ## Starts linter tool
-	flake8 .
+	flake8 . 
+
+
+	
