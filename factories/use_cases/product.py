@@ -1,8 +1,13 @@
 from app.src.repositories import ProductRepository
 from factories.repositories import sql_product_repository
-from app.src.use_cases import ListProducts, FindProductById, CreateProduct, DeleteProduct, EditProduct, FilterProductByStatus
-
-
+from app.src.use_cases import (
+    ListProducts,
+    FindProductById,
+    CreateProduct,
+    DeleteProduct,
+    EditProduct,
+    FilterProductByStatus
+)
 
 def get_product_repository() -> ProductRepository:
     return sql_product_repository()
