@@ -5,7 +5,13 @@ from faker import Faker
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
-from factories.use_cases.product import delete_product_use_case, list_product_use_case, filter_product_use_case, edit_product_use_case, get_products_use_case
+from factories.use_cases.product import (
+    delete_product_use_case,
+    list_product_use_case,
+    filter_product_use_case,
+    edit_product_use_case,
+    
+)
 from app.src.core.models._product import Product, ProductStatuses
 
 fake = Faker()
@@ -23,7 +29,7 @@ def test_get_products_endpoint_success(api_client: TestClient, mock_session_mana
     mock_use_case = MagicMock(return_value=mock_response)
 
     # Overriding the product use case with mock
-    api_client.app.dependency_overrides[get_products_use_case] = lambda: mock_use_case
+    api_client.app.dependency_overrides[list_product_use_case] = lambda: mock_use_case
 
     # Sending GET request
     response = api_client.get("/products")
@@ -45,9 +51,10 @@ def test_filter_products_endpoint_success(api_client: TestClient, mock_session_m
     
     mock_response = expected_filtered_products
     mock_use_case = MagicMock(return_value=mock_response)
-
+    # Overriding the product use case with mock
     api_client.app.dependency_overrides[filter_product_use_case] = lambda: mock_use_case
 
+    # Sending GET request
     filter_by = "New"
     response = api_client.get(f"/products?status={filter_by}")
 
@@ -67,6 +74,8 @@ def test_edit_product_endpoint(api_client: TestClient, mock_session_manager: Mag
     }
 
     mock_use_case = MagicMock(return_value=product)
+
+    # Overriding the product use case with mock
     api_client.app.dependency_overrides[edit_product_use_case] = lambda: mock_use_case
 
     request_body = {
@@ -75,6 +84,7 @@ def test_edit_product_endpoint(api_client: TestClient, mock_session_manager: Mag
         "status": product['status']
     }
 
+    # Sending request
     response = api_client.put(f"/products/{product['product_id']}", json=request_body)
 
     assert response.status_code == 200
@@ -88,8 +98,10 @@ def test_delete_product_endpoint_success(api_client: TestClient, mock_session_ma
     mock_response = product_id
     mock_use_case = MagicMock(return_value=mock_response)
 
+    # Overriding the product use case with mock
     api_client.app.dependency_overrides[delete_product_use_case] = lambda: mock_use_case
 
+    # Sending request
     response = api_client.delete(f"/products/{product_id}")
 
     assert response.status_code == 200
